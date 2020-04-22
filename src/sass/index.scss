@@ -1,0 +1,32 @@
+$body-bg: #9e9e9e;
+$body-color: #121212;
+
+// @import '~bootswatch/dist/darkly/variables';
+@import '~bootstrap/scss/bootstrap';
+
+.clickable-header {
+  cursor: pointer;
+}
+
+tr.addi-line-0 {
+  background-color: #ffffff;
+}
+tr.addi-line-1 {
+  background-color: #e8ffe8;
+}
+tr.addi-line-2 {
+  background-color: #dbdbdb;
+}
+tr.addi-line-2 {
+  background-color: #ffffd2;
+}
+td.addi-level-0 {
+  padding-left: 0.75rem;
+}
+td.addi-level-1 {
+  padding-left: 2.5rem;
+}
+
+.smaller {
+  font-size: 90%;
+}
