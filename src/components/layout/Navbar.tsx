@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTable } from '@fortawesome/free-solid-svg-icons';
 import { SmetaContext } from '../../context/smetaContext';
@@ -16,6 +16,11 @@ const Navbar = (props: Props) => {
     },
     { name: 'large', description: 'Большой файл ~1500 позиций' },
   ];
+
+  useEffect(() => {
+    openFile(currentFile);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onSelectFile = (index: number) => {
     openFile(files[index].name);

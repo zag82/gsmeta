@@ -16,11 +16,11 @@ function App() {
         <Totals />
         <AdditionsList />
         <ReferenceList />
-        <div className='row mt-3'>
-          <div className='col-3'>
+        <div className='row mt-3' style={{ flexWrap: 'wrap' }}>
+          <div className='col-3 equal-height'>
             <ObjectInspector />
           </div>
-          <div className='col-9'>
+          <div className='col-9 equal-height'>
             <SmetaGrid />
           </div>
         </div>

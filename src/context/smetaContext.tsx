@@ -1,5 +1,6 @@
 import React, { createContext, useState } from 'react';
-import { Smeta, AdditionKind } from './gss.types';
+import { Smeta, GRecord } from './gss.types';
+import { gssTestSmeta } from './gss.smeta';
 
 // consts and types
 interface SmetaContextProvider {
@@ -9,68 +10,26 @@ interface SmetaContextProvider {
   showAddi: boolean;
   showRefs: boolean;
   curRecID: number | null;
+  curRec: GRecord | null;
   // common actions
   openFile: (file: string) => void;
   // view actions
   toggleShowAddi: () => void;
   toggleShowRefs: () => void;
-  toggleRecordState: (param: number) => void;
-  setCurRecID: (recID: number) => void;
+  toggleRecordStatus: (param: number) => void;
+  getRecordStatus: (recID: number) => number;
+  selectRec: (recID: number) => void;
   // gss Actions
   gssChangeQuantity: () => void;
   gssCopyItem: () => void;
 }
 
 const initialFile = 'small';
-const initialSmeta: Smeta = {
-  total: 0,
-  additions: [
-    {
-      id: 1,
-      name: 'Начисление такое-то',
-      kind: AdditionKind.Standard,
-      level: 0,
-      code: 'нВсего',
-      total: 1500.67,
-      totalBase: 1300.33,
-    },
-    {
-      id: 2,
-      name: 'Начисление справочное не для расчетов',
-      kind: AdditionKind.Sprav,
-      level: 0,
-      code: 'нЧто',
-      total: 150.0,
-      totalBase: 130.8,
-    },
-    {
-      id: 2,
-      name: 'Начисление внутри пустое',
-      kind: AdditionKind.Empty,
-      level: 1,
-      code: '',
-      total: 0,
-      totalBase: 0,
-    },
-  ],
-  references: [
-    {
-      id: 1,
-      name: 'ФЕР - ДЕМО',
-      index: 'Индекс на поправку',
-      method: 'Базисно-индексный метод (БИР)',
-    },
-    {
-      id: 2,
-      name: 'ФЕР - Ресурсов и ценников',
-      index: '',
-      method: 'ССЦ Базизно-индексный метод (сБР)',
-    },
-  ],
-};
+const initialSmeta: Smeta = gssTestSmeta;
 const initialShowAddi = false;
 const initialShowRefs = false;
 const initialRecID = null;
+const initialCurRec = null;
 const defaultContext: SmetaContextProvider = {
   currentFile: initialFile,
   smeta: initialSmeta,
@@ -78,13 +37,17 @@ const defaultContext: SmetaContextProvider = {
   showAddi: initialShowAddi,
   showRefs: initialShowRefs,
   curRecID: initialRecID,
+  curRec: initialCurRec,
   // common actions
   openFile: (file: string) => {},
   // view actions
   toggleShowAddi: () => {},
   toggleShowRefs: () => {},
-  toggleRecordState: (param: number) => {},
-  setCurRecID: (recID: number) => {},
+  toggleRecordStatus: (param: number) => {},
+  getRecordStatus: (recID: number): number => {
+    return 0;
+  },
+  selectRec: (recID: number) => {},
   // gss Actions
   gssChangeQuantity: () => {},
   gssCopyItem: () => {},
@@ -102,11 +65,14 @@ export const SmetaProvider = (props: Props) => {
   const [smeta, setSmeta] = useState<Smeta>(initialSmeta);
   const [showAddi, setShowAddi] = useState<boolean>(initialShowAddi);
   const [showRefs, setShowRefs] = useState<boolean>(initialShowRefs);
+  const [collapses, setCollapses] = useState(new Map<number, number>());
   const [curRecID, setCurRecID] = useState<number | null>(initialRecID);
+  const [curRec, setCurRec] = useState<GRecord | null>(initialCurRec);
 
   // common actions
   const openFile = (file: string) => {
     // do file opening operations
+    gssRecalc(initialSmeta);
     // store file
     setFile(file);
   };
@@ -118,13 +84,48 @@ export const SmetaProvider = (props: Props) => {
   const toggleShowRefs = () => {
     setShowRefs(!showRefs);
   };
-  const toggleRecordState = (param: number) => {
+  const getRecordStatus = (recID: number): number => {
+    const status = collapses.get(recID);
+    return status || 0;
+  };
+  const toggleRecordStatus = (param: number) => {
     // do toggle state of param of record in smeta
+    if (curRecID) {
+      const newCollapses = new Map<number, number>(collapses);
+      let status = getRecordStatus(curRecID);
+      if ((status & param) === param) status -= param;
+      else status += param;
+      newCollapses.set(curRecID, status);
+      setCollapses(newCollapses);
+    }
+  };
+  const selectRec = (recID: number) => {
+    // set current selected record
+    setCurRecID(recID);
+    setCurRec(gssFindRec(smeta, recID));
   };
 
   // gss actions
+  const gssRecalc = (sm: Smeta) => {
+    console.log('Recalc');
+    let total = 0;
+    sm.data.forEach((part) => {
+      part.children?.forEach((cost) => {
+        total += parseFloat(cost.fields.get('Итого') as string);
+      });
+    });
+    const newSmeta = { ...smeta };
+    newSmeta.total = total;
+    setSmeta(newSmeta);
+  };
+
+  const gssFindRec = (sm: Smeta, recID: number): GRecord | null => {
+    return null;
+  };
+
   const gssChangeQuantity = () => {
     // change quantity
+    // curRecID;
   };
 
   const gssCopyItem = () => {
@@ -139,13 +140,15 @@ export const SmetaProvider = (props: Props) => {
         showAddi,
         showRefs,
         curRecID,
+        curRec,
         // common actions
         openFile,
         // view actions
         toggleShowAddi,
         toggleShowRefs,
-        toggleRecordState,
-        setCurRecID,
+        toggleRecordStatus,
+        getRecordStatus,
+        selectRec,
         gssChangeQuantity,
         gssCopyItem,
       }}

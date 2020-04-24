@@ -2,10 +2,22 @@ export interface Smeta {
   total: number;
   additions: Addition[];
   references: GRef[];
+  data: GRecord[];
 }
 
+export type GRecordType =
+  | 'Раздел'
+  | 'Расценка'
+  | 'Ресурс'
+  | 'Коэффициент'
+  | 'Индекс'
+  | 'Начисление';
 export interface GRecord {
   id: number;
+  type: GRecordType; // RecordType.Name
+  fields: Map<string, string>; // name and value
+  children: GRecord[] | null;
+  extensions: Map<GRecordType, GRecord[]> | null;
 }
 
 // начисления
@@ -15,7 +27,8 @@ export enum AdditionKind {
   Empty,
   Subtotal,
 }
-export interface Addition extends GRecord {
+export interface Addition {
+  id: number;
   name: string;
   kind: AdditionKind;
   level: number;
@@ -25,7 +38,8 @@ export interface Addition extends GRecord {
 }
 
 // привязки
-export interface GRef extends GRecord {
+export interface GRef {
+  id: number;
   name: string;
   index: string;
   method: string;
