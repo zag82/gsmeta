@@ -17,43 +17,37 @@ const Totals = (props: Props) => {
   };
 
   return (
-    <div className='card bg-secondary text-white mt-3'>
-      <div className='card-body'>
-        <div className='row'>
-          <div className='col pt-2'>
-            <strong>Итого по смете: {smeta.total} руб.</strong>
-          </div>
-          <div className='col pt-2'>
-            <strong>Позиций: {smeta.positions}</strong>
-          </div>
-          <ul className='nav'>
-            <li className='nav-item'>
-              <a
-                role='button'
-                className='nav-link btn btn-outline-warning'
-                href='#!'
-                onClick={onChangeQuantity}
-                title='Увеличивает количество текущей позиции в 2 раза'
-              >
-                Количество
-              </a>
-            </li>
-            <li className='nav-item mx-2'>
-              {' '}
-              <a
-                role='button'
-                className='nav-link btn btn-outline-warning'
-                href='#!'
-                onClick={onCopyItem}
-                title='Копирует текущую позицию и вставляет сразу за ней'
-              >
-                Копия
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <ul className='nav'>
+      <li className='nav-item text-white pt-2 mx-4'>
+        <strong>Итого по смете: {smeta.total} руб.</strong>
+      </li>
+      <li className='nav-item text-white pt-2 mx-4'>
+        <strong>Позиций: {smeta.positions}</strong>
+      </li>
+      <li className='nav-item'>
+        <a
+          role='button'
+          className='nav-link btn btn-outline-warning'
+          href='#!'
+          onClick={onChangeQuantity}
+          title='Увеличивает количество текущей позиции в 2 раза'
+        >
+          Количество
+        </a>
+      </li>
+      <li className='nav-item mx-2'>
+        {' '}
+        <a
+          role='button'
+          className='nav-link btn btn-outline-warning'
+          href='#!'
+          onClick={onCopyItem}
+          title='Копирует текущую позицию и вставляет сразу за ней'
+        >
+          Копия
+        </a>
+      </li>
+    </ul>
   );
 };
 

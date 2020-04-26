@@ -18,7 +18,7 @@ export interface GRecord {
   id: number;
   type: GRecordType; // RecordType.Name
   fields: Map<string, string>; // name and value
-  children: GRecord[] | null;
+  children: GRecord[];
   extensions: Map<GRecordType, GRecord[]> | null;
 }
 

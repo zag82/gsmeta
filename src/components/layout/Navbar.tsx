@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { SmetaContext } from '../../context/smetaContext';
+import Totals from '../smeta/Totals';
 
 interface Props {}
 
@@ -24,11 +25,12 @@ const Navbar = (props: Props) => {
     openFile(files[index].name);
   };
   return (
-    <nav className='navbar navbar-expand-lg navbar-dark bg-dark'>
+    <nav className='navbar navbar-expand-lg navbar-dark bg-dark fixed-top'>
       <div className='container-fluid'>
         <span className='navbar-brand mb-0 h1'>
           <img src='/images/logo.png' alt='логотип' /> Гсс+
         </span>
+        <Totals />
         <ul className='navbar-nav'>
           {files.map((file, index) => (
             <li

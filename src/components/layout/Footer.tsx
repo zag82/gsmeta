@@ -4,7 +4,7 @@ interface Props {}
 
 const Footer = (props: Props) => {
   return (
-    <footer className='text-center mt-2 smaller'>
+    <footer className='text-center my-2 smaller'>
       <small>&copy; 2020 Гсс+</small>
     </footer>
   );

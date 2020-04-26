@@ -9,6 +9,12 @@ const ObjectInspector = (props: Props) => {
   const fillFields = () => {
     const fields: JSX.Element[] = [];
     if (curRec) {
+      fields.push(
+        <tr key={curRec.id}>
+          <td>ID</td>
+          <td>{curRec.id}</td>
+        </tr>
+      );
       curRec.fields.forEach((value, name) => {
         fields.push(
           <tr key={name}>
@@ -33,7 +39,7 @@ const ObjectInspector = (props: Props) => {
       )}
       {curRec && (
         <div className='card-body'>
-          <table className='table'>
+          <table className='table table-light table-striped table-hover table-bordered'>
             <tbody>{fillFields()}</tbody>
           </table>
         </div>

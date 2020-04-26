@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "zag82-web"
+  },
+  "targets": {
+    "zag82-web": {
+      "hosting": {
+        "gss": [
+          "zag82-web-gss"
+        ]
+      }
+    }
+  }
+}

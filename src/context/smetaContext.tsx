@@ -1,6 +1,7 @@
 import React, { createContext, useState } from 'react';
-import { Smeta, GRecord } from './gss.types';
+import { Smeta, GRecord, Addition, GRef, GRecordType } from './gss.types';
 import { gssTestSmeta } from './gss.smeta';
+import { idHolder } from './idHolder';
 
 // consts and types
 interface SmetaContextProvider {
@@ -25,7 +26,7 @@ interface SmetaContextProvider {
 }
 
 const initialFile = 'small';
-const initialSmeta: Smeta = gssTestSmeta;
+const initialSmeta: Smeta = gssTestSmeta();
 const initialShowAddi = false;
 const initialShowRefs = false;
 const initialRecID = null;
@@ -72,7 +73,12 @@ export const SmetaProvider = (props: Props) => {
   // common actions
   const openFile = (file: string) => {
     // do file opening operations
-    gssRecalc(initialSmeta);
+    setCurRecID(initialRecID);
+    setCurRec(initialCurRec);
+    setCollapses(new Map<number, number>());
+    setShowRefs(initialShowRefs);
+    setShowAddi(initialShowAddi);
+    gssRecalc(gssTestSmeta());
     // store file
     setFile(file);
   };
@@ -109,28 +115,86 @@ export const SmetaProvider = (props: Props) => {
   };
 
   // gss actions
+  function gssCopyRecord(rec: GRecord, useGlobalID: boolean): GRecord {
+    let newChilds: GRecord[] = [];
+    rec.children.forEach((r) => {
+      newChilds.push(gssCopyRecord(r, useGlobalID));
+    });
+
+    let newExts: Map<GRecordType, GRecord[]> | null = null;
+    if (rec.extensions) {
+      newExts = new Map<GRecordType, GRecord[]>();
+      rec.extensions?.forEach((ex, typ) => {
+        let newEx: GRecord[] = [];
+        ex.forEach((itm) => {
+          newEx.push(gssCopyRecord(itm, useGlobalID));
+        });
+        newExts?.set(typ, newEx);
+      });
+    }
+    return {
+      id: useGlobalID ? idHolder.newID() : rec.id,
+      type: rec.type,
+      fields: new Map<string, string>(rec.fields),
+      children: newChilds,
+      extensions: newExts,
+    };
+  }
+  function gssCopySmeta(src: Smeta): Smeta {
+    let newAdditions: Addition[] = [];
+    src.additions.forEach((addi) => {
+      newAdditions.push({
+        ...addi,
+      });
+    });
+    let newRefs: GRef[] = [];
+    src.references.forEach((ref) => {
+      newRefs.push({
+        ...ref,
+      });
+    });
+    let newData: GRecord[] = [];
+    src.data.forEach((itm) => {
+      newData.push(gssCopyRecord(itm, false));
+    });
+
+    return {
+      total: src.total,
+      positions: src.positions,
+      maxID: src.maxID,
+      additions: newAdditions,
+      references: newRefs,
+      data: newData,
+    };
+  }
+
   function gssSearch(rec: GRecord, action: (r: GRecord) => void) {
     action(rec);
-    rec.children?.forEach((itm) => gssSearch(itm, action));
+    rec.children.forEach((itm) => gssSearch(itm, action));
     rec.extensions?.forEach((ex, _typ) => {
       ex.forEach((itm) => gssSearch(itm, action));
     });
   }
-  const gssRecalc = (sm: Smeta) => {
+  const gssRecalc = (sm: Smeta, needMakeCopy: boolean = false) => {
     let total = 0;
     let pos = 0;
     let maxid = 0;
-    sm.data.forEach((part) => {
+    const newSmeta = needMakeCopy ? gssCopySmeta(sm) : sm;
+    newSmeta.data.forEach((part) => {
       gssSearch(part, (r) => {
         if (r.id > maxid) maxid = r.id;
       });
-      part.children?.forEach((cost) => {
-        total += parseFloat(cost.fields.get('Итого') as string);
+      let totalPart = 0;
+      part.children.forEach((cost) => {
+        const value = parseFloat(cost.fields.get('Итого') as string);
+        total += value;
+        totalPart += value;
         pos += 1;
+        cost.fields.set('Номер', String(pos));
       });
+      part.fields.set('Итого', String(Math.round(totalPart * 100) / 100));
     });
-    const newSmeta = { ...sm };
-    newSmeta.total = total;
+    newSmeta.total = Math.round(total * 100) / 100;
     newSmeta.positions = pos;
     newSmeta.maxID = maxid;
     setSmeta(newSmeta);
@@ -151,16 +215,70 @@ export const SmetaProvider = (props: Props) => {
   const gssChangeQuantity = () => {
     // change quantity
     if (curRecID) {
-      let newSmeta = { ...smeta };
+      let newSmeta = gssCopySmeta(smeta);
       const rec = gssFindRec(newSmeta, curRecID);
-      const fld = rec?.fields.get('Количество');
+      let fld = rec?.fields.get('Количество');
       if (fld) rec?.fields.set('Количество', '' + parseFloat(fld) * 2);
+      fld = rec?.fields.get('Итого');
+      if (fld) rec?.fields.set('Итого', '' + parseFloat(fld) * 2);
       gssRecalc(newSmeta);
     }
   };
 
   const gssCopyItem = () => {
     // copy item
+    if (curRecID) {
+      let newSmeta = gssCopySmeta(smeta);
+      let processed = false;
+      idHolder.assign(newSmeta.maxID);
+      for (let i = 0; i < newSmeta.data.length; i++) {
+        // go through parts
+        const part = newSmeta.data[i];
+        if (part.id === curRecID) {
+          const newPart: GRecord = gssCopyRecord(part, true);
+          newSmeta.data = [
+            ...newSmeta.data.slice(0, i + 1),
+            newPart,
+            ...newSmeta.data.slice(i + 1),
+          ];
+          processed = true;
+        }
+        if (processed === true) break;
+
+        for (let j = 0; j < part.children.length; j++) {
+          // go through costs
+          const cost = part.children[j];
+          if (cost.id === curRecID) {
+            const newCost: GRecord = gssCopyRecord(cost, true);
+            part.children = [
+              ...part.children.slice(0, j + 1),
+              newCost,
+              ...part.children.slice(j + 1),
+            ];
+            processed = true;
+          }
+          if (processed === true) break;
+
+          for (let k = 0; k < cost.children.length; k++) {
+            // go through resources
+            const resource = cost.children[k];
+            if (resource.id === curRecID) {
+              const newResource: GRecord = gssCopyRecord(resource, true);
+              cost.children = [
+                ...cost.children.slice(0, k + 1),
+                newResource,
+                ...cost.children.slice(k + 1),
+              ];
+              processed = true;
+            }
+            if (processed === true) break;
+          }
+          if (processed === true) break;
+        }
+        if (processed === true) break;
+      }
+      gssRecalc(newSmeta);
+    }
   };
 
   return (

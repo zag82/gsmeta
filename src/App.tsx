@@ -12,8 +12,7 @@ function App() {
   return (
     <SmetaProvider>
       <Navbar />
-      <div className='container-fluid'>
-        <Totals />
+      <div className='container-fluid skip-navbar'>
         <AdditionsList />
         <ReferenceList />
         <div className='row mt-3' style={{ flexWrap: 'wrap' }}>
