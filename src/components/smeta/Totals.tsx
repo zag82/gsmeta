@@ -21,7 +21,10 @@ const Totals = (props: Props) => {
       <div className='card-body'>
         <div className='row'>
           <div className='col pt-2'>
-            <strong>Итого по смете: {smeta.total}</strong>
+            <strong>Итого по смете: {smeta.total} руб.</strong>
+          </div>
+          <div className='col pt-2'>
+            <strong>Позиций: {smeta.positions}</strong>
           </div>
           <ul className='nav'>
             <li className='nav-item'>

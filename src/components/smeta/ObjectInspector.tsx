@@ -9,9 +9,9 @@ const ObjectInspector = (props: Props) => {
   const fillFields = () => {
     const fields: JSX.Element[] = [];
     if (curRec) {
-      curRec.fields.forEach((name, value) => {
+      curRec.fields.forEach((value, name) => {
         fields.push(
-          <tr>
+          <tr key={name}>
             <td>{name}</td>
             <td>{value}</td>
           </tr>

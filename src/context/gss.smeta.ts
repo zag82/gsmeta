@@ -3,6 +3,8 @@ import { Smeta, AdditionKind } from './gss.types';
 
 export const gssEmptySmeta: Smeta = {
   total: 0,
+  positions: 0,
+  maxID: 0,
   additions: [],
   references: [],
   data: [],
@@ -10,6 +12,8 @@ export const gssEmptySmeta: Smeta = {
 
 export const gssTestSmeta: Smeta = {
   total: 0,
+  positions: 0,
+  maxID: 0,
   additions: [
     {
       id: 1,

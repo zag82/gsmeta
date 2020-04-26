@@ -1,6 +1,4 @@
 import React, { useContext, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTable } from '@fortawesome/free-solid-svg-icons';
 import { SmetaContext } from '../../context/smetaContext';
 
 interface Props {}
@@ -27,9 +25,9 @@ const Navbar = (props: Props) => {
   };
   return (
     <nav className='navbar navbar-expand-lg navbar-dark bg-dark'>
-      <div className='container'>
+      <div className='container-fluid'>
         <span className='navbar-brand mb-0 h1'>
-          <FontAwesomeIcon icon={faTable} size='lg' /> Гсс+
+          <img src='/images/logo.png' alt='логотип' /> Гсс+
         </span>
         <ul className='navbar-nav'>
           {files.map((file, index) => (

@@ -93,8 +93,11 @@ export const SmetaProvider = (props: Props) => {
     if (curRecID) {
       const newCollapses = new Map<number, number>(collapses);
       let status = getRecordStatus(curRecID);
-      if ((status & param) === param) status -= param;
-      else status += param;
+      if ((status & param) === param) {
+        status -= param;
+      } else {
+        status += param;
+      }
       newCollapses.set(curRecID, status);
       setCollapses(newCollapses);
     }
@@ -106,26 +109,54 @@ export const SmetaProvider = (props: Props) => {
   };
 
   // gss actions
+  function gssSearch(rec: GRecord, action: (r: GRecord) => void) {
+    action(rec);
+    rec.children?.forEach((itm) => gssSearch(itm, action));
+    rec.extensions?.forEach((ex, _typ) => {
+      ex.forEach((itm) => gssSearch(itm, action));
+    });
+  }
   const gssRecalc = (sm: Smeta) => {
-    console.log('Recalc');
     let total = 0;
+    let pos = 0;
+    let maxid = 0;
     sm.data.forEach((part) => {
+      gssSearch(part, (r) => {
+        if (r.id > maxid) maxid = r.id;
+      });
       part.children?.forEach((cost) => {
         total += parseFloat(cost.fields.get('Итого') as string);
+        pos += 1;
       });
     });
-    const newSmeta = { ...smeta };
+    const newSmeta = { ...sm };
     newSmeta.total = total;
+    newSmeta.positions = pos;
+    newSmeta.maxID = maxid;
     setSmeta(newSmeta);
   };
 
   const gssFindRec = (sm: Smeta, recID: number): GRecord | null => {
-    return null;
+    let rec = null;
+    sm.data.forEach((part) => {
+      gssSearch(part, (r) => {
+        if (r.id === recID) {
+          rec = r;
+        }
+      });
+    });
+    return rec;
   };
 
   const gssChangeQuantity = () => {
     // change quantity
-    // curRecID;
+    if (curRecID) {
+      let newSmeta = { ...smeta };
+      const rec = gssFindRec(newSmeta, curRecID);
+      const fld = rec?.fields.get('Количество');
+      if (fld) rec?.fields.set('Количество', '' + parseFloat(fld) * 2);
+      gssRecalc(newSmeta);
+    }
   };
 
   const gssCopyItem = () => {

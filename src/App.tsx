@@ -12,7 +12,7 @@ function App() {
   return (
     <SmetaProvider>
       <Navbar />
-      <div className='container'>
+      <div className='container-fluid'>
         <Totals />
         <AdditionsList />
         <ReferenceList />

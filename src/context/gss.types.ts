@@ -1,5 +1,7 @@
 export interface Smeta {
   total: number;
+  positions: number;
+  maxID: number;
   additions: Addition[];
   references: GRef[];
   data: GRecord[];
