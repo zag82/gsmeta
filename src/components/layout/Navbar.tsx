@@ -7,13 +7,10 @@ interface Props {}
 const Navbar = (props: Props) => {
   const { currentFile, openFile } = useContext(SmetaContext);
   const files = [
-    { name: 'small', description: 'Простой файл на 10 позиций, без привязок' },
     {
-      name: 'medium',
-      description:
-        'Средний файл на 100 позиций с привязками и большой концовкой',
+      name: 'Новый файл',
+      description: 'Простой файл на 2 позиции для примера',
     },
-    { name: 'large', description: 'Большой файл ~1500 позиций' },
   ];
 
   useEffect(() => {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { SmetaProvider } from './context/smetaContext';
 import Navbar from './components/layout/Navbar';
-import Totals from './components/smeta/Totals';
 import AdditionsList from './components/smeta/AdditionsList';
 import ReferenceList from './components/smeta/ReferenceList';
 import ObjectInspector from './components/smeta/ObjectInspector';
