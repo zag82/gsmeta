@@ -15,11 +15,12 @@
     "@types/react-dom": "^16.9.6",
     "bootstrap": "^4.4.1",
     "jquery": ">=3.5.0",
-    "node-sass": "^4.13.1",
     "popper.js": "1.16.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "sass": "^1.29.0",
+    "sass-loader": "^10.1.0",
     "typescript": "^3.7.5"
   },
   "scripts": {
